@@ -18,7 +18,7 @@ public class proxy {
     
     
   }
-  
+  /*
   static class SocketHandle extends Thread {
 
     private Socket socket;
@@ -42,7 +42,7 @@ public class proxy {
   }
     
   }
-  
+  */
   static class Handler implements Runnable{
     private Socket socket;
     public Handler(Socket socket){
@@ -66,8 +66,7 @@ public class proxy {
       InputStream proxyInput = null;
       OutputStream proxyOutput = null;
       try {
-          clientInput = socket.getInputStream();
-          clientOutput = socket.getOutputStream();
+          clientInput = socket.getInputStream(); //向客户端取数据
           String line;
           String host = "";
           BufferedReader reader = new BufferedReader(new InputStreamReader(clientInput));
@@ -85,9 +84,10 @@ public class proxy {
               }
               System.out.printf("host_line: %s\n",host);
           }
+          /*
           String type = headStr.substring(0, headStr.indexOf(" "));
           //根据host头解析出目标服务器的host和port
-          /*String[] hostTemp = host.split(":");
+          String[] hostTemp = host.split(":");
           host = hostTemp[0];//拿到host
           System.out.printf("host: %s\n",host);
           int port = 80;
@@ -96,15 +96,19 @@ public class proxy {
           }*/
           //连接到目标服务器
           int port = 80;
-          proxySocket = new Socket(host, port); //创建一个
+          proxySocket = new Socket(host, port); //创建一个流套接字，并且把host跟port端口连接
           proxyOutput = proxySocket.getOutputStream();
           //根据HTTP method来判断是https还是http请求
+          clientOutput = socket.getOutputStream();//socket传出数据
+          /*
           if ("CONNECT".equalsIgnoreCase(type)) {//https先建立隧道
               clientOutput.write("HTTP/1.1 200 Connection Established\r\n\r\n".getBytes());
               clientOutput.flush();
+              System.out.println("执行connect");
           } else {//http直接将请求头转发
               proxyOutput.write(headStr.toString().getBytes());
-          }
+          }*/
+          proxyOutput.write(headStr.toString().getBytes());
           //新开线程转发客户端请求至目标服务器()
           new ProxyHandleThread(clientInput, proxyOutput).start();
           //转发目标服务器响应至客户端(服务器转发给代理服务器的内容)
@@ -168,7 +172,8 @@ public class proxy {
 
     private InputStream input;
     private OutputStream output;
-
+    
+    //clientInput, proxyOutput
     public ProxyHandleThread(InputStream input, OutputStream output) {
         this.input = input;
         this.output = output;
@@ -183,6 +188,23 @@ public class proxy {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        /*
+        finally{
+          if (input != null) {
+            try {
+                input.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+          }
+          if (output != null) {
+            try {
+                output.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+          }
+        }*/
     }
   }
   //思路：初始化socket，然后创建socket
