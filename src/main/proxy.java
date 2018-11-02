@@ -15,14 +15,11 @@ public class proxy {
       Thread workThread=new Thread(new Handler(socket));
       workThread.start();
     }
-    
-    
   }
+  
   /*
   static class SocketHandle extends Thread {
-
     private Socket socket;
-
     public SocketHandle(Socket socket) {
         this.socket = socket;
     }
